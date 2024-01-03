@@ -30,7 +30,7 @@ public struct Sentence: Hashable {
     /// Clean a string.
     /// - Parameter s: Original text
     /// - Returns: The same text with leading and trailing whitespaces or punctuation removed.
-    static func clean(_ s: String) -> [String] {
+    static public func clean(_ s: String) -> [String] {
         return s
             .lowercased()
             .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -38,7 +38,7 @@ public struct Sentence: Hashable {
             .words
     }
 
-    static func removeStopWords(from w: [String], additionalStopwords: [String] = [String]()) -> Set<String> {
+    static public func removeStopWords(from w: [String], additionalStopwords: [String] = [String]()) -> Set<String> {
         var wordSet = Set(w)
         wordSet.subtract(Stopwords.English + additionalStopwords)
         return wordSet
