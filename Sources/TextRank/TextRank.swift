@@ -89,17 +89,23 @@ extension TextRank {
     /// - Returns: An array of sentences.
     static func splitIntoSentences(_ text: String, additionalStopwords stopwords: [String] = [String]()) -> [Sentence] {
         if text.isEmpty { return [] }
-
+        
+        let sentences = text.sentences()
         var x = [Sentence]()
-        text.enumerateSubstrings(in: text.range(of: text)!, options: [.bySentences, .localized]) { substring, _, _, _ in
-            if let substring = substring, !substring.isEmpty {
-                x.append(
-                    Sentence(text: substring.trimmingCharacters(in: .whitespacesAndNewlines),
-                             originalTextIndex: x.count,
-                             additionalStopwords: stopwords)
-                )
-            }
+        
+        for sentence in sentences {
+            x.append(Sentence(text: sentence, originalTextIndex: x.count, additionalStopwords: stopwords))
         }
+        
+//        text.enumerateSubstrings(in: text.range(of: text)!, options: [.bySentences, .localized]) { substring, _, _, _ in
+//            if let substring = substring, !substring.isEmpty {
+//                x.append(
+//                    Sentence(text: substring.trimmingCharacters(in: .whitespacesAndNewlines),
+//                             originalTextIndex: x.count,
+//                             additionalStopwords: stopwords)
+//                )
+//            }
+//        }
         return Array(Set(x))
     }
 }
@@ -121,5 +127,38 @@ public extension TextRank {
             }
         }
         return filteredNodeList
+    }
+}
+
+
+extension String {
+    func sentences() -> [String] {
+        // A very basic implementation using punctuation to split sentences
+        // This can be improved or made more sophisticated based on your requirements
+        let pattern = "[.!?]"
+        let regex = try! NSRegularExpression(pattern: pattern, options: [])
+        let nsString = self as NSString
+        let range = NSRange(location: 0, length: nsString.length)
+
+        var start = 0
+        var sentences = [String]()
+
+        regex.enumerateMatches(in: self, options: [], range: range) { (match, _, _) in
+            if let match = match {
+                let sentence = nsString.substring(with: NSRange(location: start, length: match.range.location - start)).trimmingCharacters(in: .whitespaces)
+                if !sentence.isEmpty {
+                    sentences.append(sentence)
+                }
+                start = match.range.location + match.range.length
+            }
+        }
+
+        // Add the last sentence if there is any
+        let lastSentence = nsString.substring(from: start).trimmingCharacters(in: .whitespaces)
+        if !lastSentence.isEmpty {
+            sentences.append(lastSentence)
+        }
+
+        return sentences
     }
 }
